@@ -39,7 +39,7 @@ var TriageCounselor = React.createClass({
 
                 peer.on('signal', function(data) {
                     console.log('received signal');
-                    console.log('hi I am a peer ', peer);
+                    console.log('hi I am a peer and I just heard a signal ', peer);
                     socket.emit('stream id', data);
                 });
 
@@ -53,7 +53,7 @@ var TriageCounselor = React.createClass({
                     socket.removeListener('connect peer', onConnectPeer);
                     socket.removeListener('stop call', onStopCall);
                     peer.destroy();
-                    console.log('peer got destroyed :( ', peer);
+                    console.log('peer after peer.destroy() ', peer);
                     var tracks = stream.getTracks();
                     tracks.forEach(function(track) {
                         track.stop();
@@ -74,6 +74,16 @@ var TriageCounselor = React.createClass({
                     video.play();
 
                 });
+                
+                socket.on('logged out', function(){
+                    socket.removeListener('connect peer', onConnectPeer);
+                    peer.destroy();
+                    var tracks = stream.getTracks();
+                    tracks.forEach(function(track){
+                       track.stop(); 
+                    });
+                });
+                
             }, function(err) {
                 console.error(err);
             });
@@ -115,23 +125,11 @@ var TriageCounselor = React.createClass({
     },
     _logout: function() {
         console.log('logout button was clicked');
-        this.socket.isFree = false;
-
-        console.log('is the socket free ', this.socket.isFree);
-        console.log('is there a peer ', this.peer);
-        // this.socket.removeListener('connect peer', onConnectPeer);
-        // this.socket.removeListener('stop call', onStopCall);
-        // this.socket.connected = false;
-        console.log('this.socket is ', this.socket);
-        console.log('what');
-        // var tracks = stream.getTracks();
-        // tracks.forEach(function(track) {
-        //     track.stop();
-        // });
-        // this.setState({
-        //     logoutButtonClicked: true,
-        //     connected: false
-        // });
+        // this.socket.isFree = false;
+        this.socket.emit('triageCounselor logged out');
+        this.setState({
+            logoutButtonClicked: true
+        });
     },
     render: function() {
         return (

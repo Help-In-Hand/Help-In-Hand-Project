@@ -2,13 +2,16 @@
 /* global navigator*/
 var React = require('react');
 var SimplePeer = require('simple-peer');
+var StopCall = require('./StopCall');
 
 var Triage = React.createClass({
     getInitialState: function() {
-        return {connected: false};
+        return {
+            connected: false
+        };
     },
     componentDidMount: function() {
-        var socket = io();
+        var socket = this.socket = io();
         var that = this;
         socket.emit('triage patient');
         socket.on('start stream', function() {
@@ -20,8 +23,6 @@ var Triage = React.createClass({
                 video: true,
                 audio: false
             }, function(stream) {
-
-
 
                 var peer = new SimplePeer({
                     initiator: false,
@@ -67,17 +68,46 @@ var Triage = React.createClass({
                 }
                 socket.on('queued', onQueued);
 
+                function onStopped() {
+                    console.log('onStopped was called');
+                    that.setState({
+                        connected: false
+                    });
+                    peer.destroy();
+                    var tracks = stream.getTracks();
+                    tracks.forEach(function(track) {
+                        track.stop();
+                    });
+                    socket.removeListener('connect peer', onConnectPeer);
+                    socket.removeListener('call stopped', onStopped);
+                }
+                socket.on('call stopped', onStopped);
+
             }, function(err) {
                 console.error(err);
             });
         });
 
     },
+    _stopCall: function() {
+        this.socket.emit('patient ended conversation');
+        this.setState({
+            stopCall: true
+        });
+    },
+    _endCallUi: function() {
+        return (
+            <div>
+                <button ref='endCall' onClick={this._stopCall}>stop call</button>
+            </div>
+        );
+    },
     _connected: function() {
         return (
             <div>
                 <p>You are now talking to someone</p>
                 <video ref="videoPlayer"/>
+                {this._endCallUi()}
             </div>
         );
     },
@@ -85,10 +115,13 @@ var Triage = React.createClass({
         return (
             <div>
                 {
-                    this.state.queued ?
-                    'You are in a queue to talk to a counselor. Please wait :)'
+                    this.state.stopCall ?
+                    <StopCall/> 
                     :
-                    'You are in a queue for triage'
+                    this.state.queued ?
+                        'You are in a queue to talk to a counselor. Please wait :)'
+                        :
+                        'You are in a queue for triage'
                 }
             </div>
         );
@@ -96,10 +129,14 @@ var Triage = React.createClass({
     render: function() {
         return (
             <div>
-                {this.state.connected ? this._connected() : this._disconnected()}
+                {
+                    this.state.connected ? this._connected() : this._disconnected()
+                }
             </div>
         );
     }
 });
 
 module.exports = Triage;
+
+// this.state.stopCall ? <StopCall/> : 

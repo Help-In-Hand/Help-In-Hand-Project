@@ -84,7 +84,9 @@ var CounselorsProfile = React.createClass({
 		if (this.state) {
 			showAllCounselors =
 				<div>
-					<div className="counselorsHeaderText"> <h1>Our Counselors</h1> </div>
+					<div className="counselorsHeaderText"> 
+						<h1> Our Counselors </h1> 
+					</div>
 	
 					<div className="counselorsProfilePage">
 						{this.state.listOfCounselors.map(function(counselor){

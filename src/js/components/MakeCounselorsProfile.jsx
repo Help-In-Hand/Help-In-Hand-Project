@@ -98,7 +98,9 @@ var MakeCounselorsProfile = React.createClass({
         return (
             <div>
             
-                <h2> Make Counselor's Profile </h2>
+                <div className="counselorsHeaderText">
+                    <h1>Our Counselors</h1>
+                </div>
                 
                 id: <input type="text" ref="id" /> <br/>
                 Name: <input type="text" ref="name" /> <br/>

@@ -72,7 +72,7 @@ function triageNext() {
   var triageCounselor = getFirstFreeTriageCounselor();
   if (triageCounselor) {
     var triagePatient = getFirstTriagePatient();
-    // console.log('triage before connection ', triage);
+
     if (triagePatient) {
 
       triagePatient.emit('start stream');
@@ -85,7 +85,7 @@ function triageNext() {
       //and the value is triageCounselor
 
       connections[triageCounselor.id] = triagePatient;
-      console.log('connected');
+      console.log('connected: triage counselor with patient');
     }
     else {
       console.log('there are no triage patients');
@@ -95,7 +95,6 @@ function triageNext() {
     console.log('I could not find a triage counselor');
   }
 }
-
 
 io.on('connection', function(socket) {
   socket.on('triage patient', function() {
@@ -125,11 +124,11 @@ io.on('connection', function(socket) {
   });
 
   socket.on('queue', function(counselorsEvaluation) {
-    console.log('queue was heard');
+    console.log('triage counselor made an evaluation ', counselorsEvaluation);
     var patientSocket = connections[socket.id];
     if (patientSocket) {
       socket.isFree = true;
-      console.log('is the counselors socket really free ', socket.isFree);
+      console.log('is the triage counselors socket really free ', socket.isFree);
       patientSocket.priority = counselorsEvaluation.priority;
       patients.push(patientSocket);
       patients.sort(function(patient1, patient2) {
@@ -143,14 +142,13 @@ io.on('connection', function(socket) {
           return 0;
         }
       });
-
+      
       socket.emit('stop call');
       patientSocket.emit('queued');
-
-
+      
       connections[socket.id] = null;
       connections[patientSocket.id] = null;
-
+      
       triageNext();
       patientNext();
     }
@@ -160,9 +158,33 @@ io.on('connection', function(socket) {
 
   });
 
-  socket.on('triage counselor free', function() {
-    console.log('I heard that the triage counselor is free again');
+  socket.on('counselor conversation over', function(){
+    console.log('the server heard counselor conversation over');
+    var patientSocket = connections[socket.id];
+    socket.isFree = true;
+    
+    socket.emit('stop call');
+    patientSocket.emit('call stopped');
+    
+    connections[socket.id] = null;
+    connections[patientSocket.id] = null;
+    
+    patientNext();
+  });
+  
+  socket.on('patient ended conversation', function(){
+    console.log('server heard that the patient stopped call');
+    var counselorSocket = connections[socket.id];
+    counselorSocket.isFree = true;
+    
+    socket.emit('call stopped');
+    counselorSocket.emit('stop call');
+    
+    connections[socket.id] = null;
+    connections[counselorSocket.id] = null;
+    
     triageNext();
+    patientNext();
   });
 
   socket.on('disconnect', function() {
@@ -180,6 +202,12 @@ io.on('connection', function(socket) {
     }
 
     triageNext();
+  });
+  
+  socket.on('triageCounselor logged out', function(){
+    socket.isFree = false;
+    console.log('server heard triageCounselor logged out');
+    socket.emit('logged out');
   });
 });
 

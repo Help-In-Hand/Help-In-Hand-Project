@@ -49,7 +49,7 @@ var RetrieveInfoFromDatabase = React.createClass({
                 console.log('illnessAndSymptoms', illnessAndSymptoms);
                 
                 var illnessToShow = Object.keys(illnessAndSymptoms).map(function(illnessKey) {
-                    return <div> ***{illnessKey}:*** {illnessAndSymptoms[illnessKey].map(function(eachSymptom) {
+                    return <div> <br/> <h4> <b> {illnessKey}: </b> </h4> {illnessAndSymptoms[illnessKey].map(function(eachSymptom) {
                         return <div> <ul> <li> {eachSymptom} </li></ul> </div>
                     })} </div>
                 });
@@ -57,7 +57,7 @@ var RetrieveInfoFromDatabase = React.createClass({
             }
            
             else {
-                return <div> {infoKey}: {that.state.userInfo[infoKey]} </div>
+                return <div> <h4> <br/> <b> {infoKey}: </b> </h4> {that.state.userInfo[infoKey]} <br/> </div>
             }
             //console.log(Object.prototype.toString.call(that.state.userInfo[eachKey]) === '[object Object]')
         });
@@ -72,7 +72,7 @@ var RetrieveInfoFromDatabase = React.createClass({
                 console.log('need to handle object');
             }
             else {
-                return <div> {eachKey}: {that.state.counselorInfo[eachKey]} </div>
+                return <div> <br/> {eachKey}: {that.state.counselorInfo[eachKey]} <br/> </div>
             }
         });
         
@@ -80,15 +80,19 @@ var RetrieveInfoFromDatabase = React.createClass({
         
         return (
             <div>
-                Get user's info: <br/>
-                <input type="text" ref="userId" />
-                <button onClick={this._handleUserSearch} > Search! </button> <br/><br/>
+                <div>
+                    Get user's info: <br/>
+                    <input type="text" ref="userId" />
+                    <button onClick={this._handleUserSearch} > Search! </button>
+                </div>
                 
-                <div> {userInfoToShow} </div> <br/><br/>
+                <div className="userInfoToShow"> {userInfoToShow} </div> 
                 
-                Get counselor's info: <br/>
-                <input type="text" ref="counselorId" />
-                <button onClick={this._handleCounselorSearch} > Search! </button> <br/><br/>
+                <div>
+                    Get counselor's info: <br/>
+                    <input type="text" ref="counselorId" />
+                    <button onClick={this._handleCounselorSearch} > Search! </button>
+                </div>
                 
                 <div> {counselorInfoToShow} </div> <br/><br/>
             </div>

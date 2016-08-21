@@ -8,10 +8,6 @@
     border: 2px green solid;
 }
 
-.descrip_own_words {
-    width: 600px;
-}
-
 .questionnaire_forms {
     padding: 1em 4em 1em 4em;
     background: url('./form-page-background.jpg') no-repeat center center fixed;
@@ -34,3 +30,21 @@
 .formCategory {
     font-weight: bold;
 }
+
+.homepage {
+    background: url('http://i.huffpost.com/gen/1682265/images/o-ON-THE-COMPUTER-facebook.jpg') no-repeat center; 
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+.triageRoom, .triageCounselorRoom, .counselorRoom {
+    background-color: blue;
+}
+
+.userInfoToShow {
+    padding: 2em;
+}
+
+
